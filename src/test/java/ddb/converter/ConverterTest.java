@@ -53,22 +53,20 @@ public class ConverterTest {
         String dataFilePath = ConverterTest.class.getClassLoader()
                 .getResource("ddb/converter/sample_ddb.json").getPath();
         try {
-            JSONArray ddbData = converter.ddbJSONFileReader(dataFilePath);
+            JSONArray ddbData = Converter.ddbJSONFileReader(dataFilePath);
             System.out.println(ddbData);
             assert ddbData.length() > 0;
             JSONObject row = ddbData.getJSONObject(0);
-            String sql = converter.createInsertQuery("tb_user_list", row);
+            String sql = Converter.createInsertQuery("tb_user_list", row);
             assert sql.indexOf("INSERT") > -1;
-            DBDriver driver = new DBDriver("mysql", "localhost", dbPort, dbName)
-            // String sql = converter.jsonToSql("tb_user_list", ddbData);
-            // Thread.sleep(1000);
-            // System.out.println(converter.getConvertSqlSb().toString());
-            // System.out.println(sql);
+            // DBDriver driver = new DBDriver("mysql", "localhost", "3306",
+            // "ddb_sample", "ddb_sample", "ddb_sample");
+            // driver.execute(sql);
         } catch (IOException e) {
-            // TODO 自動生成された catch ブロック
             e.printStackTrace();
-            // } catch (InterruptedException e) {
-            // // TODO 自動生成された catch ブロック
+            // } catch (ClassNotFoundException e) {
+            // e.printStackTrace();
+            // } catch (SQLException e) {
             // e.printStackTrace();
         }
     }

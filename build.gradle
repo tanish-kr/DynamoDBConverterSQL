@@ -5,11 +5,32 @@ apply plugin: 'application'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-mainClassName = 'ddb.converter.Converter'
 version = '1.0'
+
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+mainClassName = 'ddb.converter.Converter'
+
+configurations {
+    compile {
+        description = 'compile classpath'
+        transitive = true
+    }
+    runtime {
+        extendsFrom compile
+    }
+}
+
+run {
+    if(project.hasProperty('args')){
+        args project.args.split('\\s+')
+    }
+}
 jar {
     manifest {
         attributes 'Implementation-Title': 'DynamoDB Converter SQL', 'Implementation-Version': version
+        attributes 'Main-Class':'ddb.converter.Converter'
+        from configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
 
@@ -45,13 +66,21 @@ sourceSets {
   }
 }
 
-
 dependencies {
     compile group: 'commons-collections', name: 'commons-collections', version: '3.2'
     compile 'org.json:json:20141113'
     compile 'org.postgresql:postgresql:9.3-1102-jdbc41'
     compile 'mysql:mysql-connector-java:5.1.16'
     testCompile group: 'junit', name: 'junit', version: '4.+'
+    testCombinedCompile "junit:junit:4.11"
+    testCombinedRuntime fileTree(dir: 'build/classes', include: '*.class')
+    compile files("$buildDir/classes") {
+        builtBy 'compile'
+    }
+    compile fileTree(dir: 'build/libs', include: '*.jar')
+    compile fileTree(dir: 'build/classes', include: '*.class')
+    //runtime fileTree(dir: 'libs', include: '*.jar')
+    //runtime fileTree(dir: 'build/classes', include: '*.class')
 }
 
 test {
@@ -59,6 +88,7 @@ test {
     maxParallelForks 10
     testLogging.showStandardStreams = true
 }
+
 
 uploadArchives {
     repositories {
@@ -73,4 +103,12 @@ task testCombined(type: Test){
   description = "Run combined tests ... "
   testClassesDir = sourceSets.testCombined.output.classesDir
   classpath += sourceSets.testCombined.runtimeClasspath
+}
+
+task compile << {
+    println 'compiling classes'
+}
+
+task list(dependsOn: configurations.compile) << {
+    println "classpath = ${configurations.compile.collect {File file -> file.name}}"
 }

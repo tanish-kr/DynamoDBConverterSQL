@@ -34,8 +34,9 @@ public class DBDriver {
     public DBDriver(String dbType, String dbHost, String dbPort, String dbName,
             String user, String password, Boolean ssl)
             throws ClassNotFoundException, SQLException {
-        this.dbUrl = "jdbc:" + dbHost + "://" + dbHost + ":" + dbPort + "/"
-                + dbName;
+        this.dbType = dbType;
+        this.dbUrl = "jdbc:" + this.dbType + "://" + dbHost + ":" + dbPort
+                + "/" + dbName;
         connection(user, password, ssl);
     }
 
@@ -51,8 +52,9 @@ public class DBDriver {
     public DBDriver(String dbType, String dbHost, String dbPort, String dbName,
             String user, String password) throws ClassNotFoundException,
             SQLException {
-        this.dbUrl = "jdbc:" + dbHost + "://" + dbHost + ":" + dbPort + "/"
-                + dbName;
+        this.dbType = dbType;
+        this.dbUrl = "jdbc:" + this.dbType + "://" + dbHost + ":" + dbPort
+                + "/" + dbName;
         connection(user, password, false);
     }
 

@@ -24,18 +24,18 @@ public class Converter {
 
     protected final static Integer THREAD_COUNT = 5;
 
-    private StringBuilder convertSqlSb = new StringBuilder();
+    private static StringBuilder convertSqlSb = new StringBuilder();
 
-    public StringBuilder getConvertSqlSb() {
+    public static StringBuilder getConvertSqlSb() {
         return convertSqlSb;
     }
 
     public void setConvertSqlSb(StringBuilder sqlString) {
-        this.convertSqlSb = sqlString;
+        Converter.convertSqlSb = sqlString;
     }
 
-    public void setConvertSqlSb(String sqlString) {
-        this.convertSqlSb.append(sqlString);
+    public static void setConvertSqlSb(String sqlString) {
+        convertSqlSb.append(sqlString);
     }
     /**
      * 
@@ -48,7 +48,20 @@ public class Converter {
      * @param args
      */
     public static void main(String[] args) {
-        // TODO 自動生成されたメソッド・スタブ
+        String tableName = args[0];
+        String inputFile = args[1];
+        String outputFile = args[2];
+        System.out.println(tableName);
+        try {
+            JSONArray ddbData = ddbJSONFileReader(inputFile);
+            jsonToSql(tableName, ddbData);
+            saveSqlFile(outputFile);
+        } catch (IOException e) {
+            // TODO 自動生成された catch ブロック
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -59,7 +72,8 @@ public class Converter {
      * @return
      * @throws IOException
      */
-    protected JSONArray ddbJSONFileReader(String filePath) throws IOException {
+    protected static JSONArray ddbJSONFileReader(String filePath)
+            throws IOException {
         StringBuilder ddbData = new StringBuilder();
         File file = new File(filePath);
         BufferedReader br = new BufferedReader(new FileReader(file));
@@ -76,10 +90,10 @@ public class Converter {
      * @param filePath
      * @throws IOException
      */
-    protected void saveSqlFile(String filePath) throws IOException {
+    protected static void saveSqlFile(String filePath) throws IOException {
         File file = new File(filePath);
         FileWriter writer = new FileWriter(file);
-        writer.write(this.getConvertSqlSb().toString());
+        writer.write(getConvertSqlSb().toString());
         writer.close();
     }
 
@@ -89,7 +103,7 @@ public class Converter {
      * @param ddbData
      * @return
      */
-    protected String jsonToSql(final String tableName, JSONArray ddbData) {
+    protected static String jsonToSql(final String tableName, JSONArray ddbData) {
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < ddbData.length(); i++) {
@@ -111,6 +125,7 @@ public class Converter {
             }
         } catch (Exception e) {
             // TODO: handle exception
+            e.printStackTrace();
         }
         return getConvertSqlSb().toString();
     }
@@ -122,7 +137,8 @@ public class Converter {
      * @param ddbRow
      * @return
      */
-    protected String createInsertQuery(String tableName, JSONObject ddbRow) {
+    protected static String createInsertQuery(String tableName,
+            JSONObject ddbRow) {
         StringBuilder sql = new StringBuilder();
         Set<String> columnSet = ddbRow.keySet();
         sql.append("INSERT IGNORE INTO ").append(tableName).append(" (");
